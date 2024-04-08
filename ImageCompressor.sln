@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageCompressor", "ImageCompressor\ImageCompressor.csproj", "{92C39C9B-3AAA-462B-B7B3-42C42BCD80BE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageCompressor.Database", "ImageCompressor.Database\ImageCompressor.Database.csproj", "{BFA920E5-A602-409B-B492-7CD119A28C1A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{92C39C9B-3AAA-462B-B7B3-42C42BCD80BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{92C39C9B-3AAA-462B-B7B3-42C42BCD80BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{92C39C9B-3AAA-462B-B7B3-42C42BCD80BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{92C39C9B-3AAA-462B-B7B3-42C42BCD80BE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BFA920E5-A602-409B-B492-7CD119A28C1A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BFA920E5-A602-409B-B492-7CD119A28C1A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BFA920E5-A602-409B-B492-7CD119A28C1A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BFA920E5-A602-409B-B492-7CD119A28C1A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

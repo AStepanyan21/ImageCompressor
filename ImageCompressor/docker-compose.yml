@@ -1,0 +1,16 @@
+version: '3'
+services:
+  platformdb:
+    image: postgres:latest
+    container_name: image_compressor
+    environment:
+      POSTGRES_DB: image_compressor_db
+      POSTGRES_USER: image_compressor_user
+      POSTGRES_PASSWORD: image_compressor_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - image_compressor_data:/var/lib/postgresql/data
+  
+volumes:
+  image_compressor_data:
