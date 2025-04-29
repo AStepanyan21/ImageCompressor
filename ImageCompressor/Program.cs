@@ -1,6 +1,7 @@
 using ImageCompressor.Authorization.Options;
 using ImageCompressor.Authorization;
 using ImageCompressor.EntityFramework;
+using ImageCompressor.Options;
 using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,10 +11,20 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 string? connection = builder.Configuration.GetConnectionString("ImageCompressorDb");
 builder.Services.Configure<AuthOptions>(builder.Configuration.GetSection("AuthOptions"));
-var serviceProvider = builder.Services.BuildServiceProvider();
-var authOptions = serviceProvider.GetRequiredService<IOptions<AuthOptions>>().Value;
+builder.Services.Configure<RedisSettings>(builder.Configuration.GetSection("Redis"));
+
 builder.Services.AddDatabase(connection!);
-builder.Services.AddAuthentication(authOptions);
+builder.Services.AddAuthentication(builder.Configuration);
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    var redisSettings = builder.Configuration.GetSection("Redis").Get<RedisSettings>();
+    options.Configuration = redisSettings!.Configuration;
+    if (!string.IsNullOrWhiteSpace(redisSettings.Password))
+    {
+        options.Configuration += $",password={redisSettings.Password}";
+    }
+
+});
 
 var app = builder.Build();
 

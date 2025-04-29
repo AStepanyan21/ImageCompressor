@@ -2,6 +2,7 @@
 using ImageCompressor.Authorization.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
@@ -10,8 +11,9 @@ namespace ImageCompressor.Authorization;
 
 public static class ServiceExtensions
 {
-    public static IServiceCollection AddAuthentication(this IServiceCollection services, AuthOptions authOptions)
+    public static IServiceCollection AddAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
+        var authOptions = configuration.GetSection("AuthOptions").Get<AuthOptions>();
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
@@ -19,7 +21,7 @@ public static class ServiceExtensions
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateLifetime = true,
-                    IssuerSigningKey = authOptions.SigningKey.GetSymmetricSecurityKey(),
+                    IssuerSigningKey = authOptions!.SigningKey.GetSymmetricSecurityKey(),
                     ValidateIssuerSigningKey = true,
                 };
                 options.Events = new JwtBearerEvents
