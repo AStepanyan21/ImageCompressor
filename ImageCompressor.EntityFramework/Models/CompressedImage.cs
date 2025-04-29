@@ -1,11 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace ImageCompressor.Database.Models;
+namespace ImageCompressor.EntityFramework.Models;
 
 public class CompressedImage
 {
     [Key] public uint CompressedImageId { set; get; }
-    public string ImagePath { get; set; }
+    public string ImagePath { get; set; } = string.Empty;
     public uint UserId { get; set; }
-    public User User { set; get; }
+    public User User { set; get; } = null!;
 }

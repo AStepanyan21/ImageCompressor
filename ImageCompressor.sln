@@ -2,7 +2,9 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageCompressor", "ImageCompressor\ImageCompressor.csproj", "{92C39C9B-3AAA-462B-B7B3-42C42BCD80BE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageCompressor.Database", "ImageCompressor.Database\ImageCompressor.Database.csproj", "{BFA920E5-A602-409B-B492-7CD119A28C1A}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{FD50CF9B-9E70-454F-9A5C-803C32BDE457}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageCompressor.EntityFramework", "ImageCompressor.EntityFramework\ImageCompressor.EntityFramework.csproj", "{BAB5084E-A261-435F-8619-A5C6BE46C2DA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -14,9 +16,12 @@ Global
 		{92C39C9B-3AAA-462B-B7B3-42C42BCD80BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{92C39C9B-3AAA-462B-B7B3-42C42BCD80BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{92C39C9B-3AAA-462B-B7B3-42C42BCD80BE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BFA920E5-A602-409B-B492-7CD119A28C1A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BFA920E5-A602-409B-B492-7CD119A28C1A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BFA920E5-A602-409B-B492-7CD119A28C1A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BFA920E5-A602-409B-B492-7CD119A28C1A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BAB5084E-A261-435F-8619-A5C6BE46C2DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BAB5084E-A261-435F-8619-A5C6BE46C2DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BAB5084E-A261-435F-8619-A5C6BE46C2DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BAB5084E-A261-435F-8619-A5C6BE46C2DA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{BAB5084E-A261-435F-8619-A5C6BE46C2DA} = {FD50CF9B-9E70-454F-9A5C-803C32BDE457}
 	EndGlobalSection
 EndGlobal

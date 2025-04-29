@@ -1,5 +1,4 @@
-using ImageCompressor.Database;
-using Microsoft.EntityFrameworkCore;
+using ImageCompressor.EntityFramework;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,8 +6,7 @@ builder.Services.AddMvc();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 string? connection = builder.Configuration.GetConnectionString("ImageCompressorDb");
-builder.Services.AddDbContext<ImageCompressorApplicationContext>(options => options.UseNpgsql(connection));
-
+builder.Services.AddDatabase(connection!);
 
 var app = builder.Build();
 
