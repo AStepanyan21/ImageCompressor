@@ -43,6 +43,7 @@
 
 
     <ItemGroup>
+      <ProjectReference Include="..\ImageCompressor.Authorization\ImageCompressor.Authorization.csproj" />
       <ProjectReference Include="..\ImageCompressor.EntityFramework\ImageCompressor.EntityFramework.csproj" />
     </ItemGroup>
 
