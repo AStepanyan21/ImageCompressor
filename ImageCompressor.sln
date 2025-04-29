@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageCompressor.Authorizati
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageCompressor.Storage", "ImageCompressor.Storage\ImageCompressor.Storage.csproj", "{4D077035-365E-4625-B97E-A471D934B2D3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageCompressor.Models", "ImageCompressor.Models\ImageCompressor.Models.csproj", "{F06B2884-32C3-41B8-AFDD-595F5390D2C4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,10 +34,15 @@ Global
 		{4D077035-365E-4625-B97E-A471D934B2D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4D077035-365E-4625-B97E-A471D934B2D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4D077035-365E-4625-B97E-A471D934B2D3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F06B2884-32C3-41B8-AFDD-595F5390D2C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F06B2884-32C3-41B8-AFDD-595F5390D2C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F06B2884-32C3-41B8-AFDD-595F5390D2C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F06B2884-32C3-41B8-AFDD-595F5390D2C4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{BAB5084E-A261-435F-8619-A5C6BE46C2DA} = {FD50CF9B-9E70-454F-9A5C-803C32BDE457}
 		{FB00F1CB-CD77-438A-9460-6DDED1E43C16} = {FD50CF9B-9E70-454F-9A5C-803C32BDE457}
 		{4D077035-365E-4625-B97E-A471D934B2D3} = {FD50CF9B-9E70-454F-9A5C-803C32BDE457}
+		{F06B2884-32C3-41B8-AFDD-595F5390D2C4} = {FD50CF9B-9E70-454F-9A5C-803C32BDE457}
 	EndGlobalSection
 EndGlobal

@@ -12,5 +12,6 @@
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\ImageCompressor.EntityFramework\ImageCompressor.EntityFramework.csproj" />
+      <ProjectReference Include="..\ImageCompressor.Models\ImageCompressor.Models.csproj" />
     </ItemGroup>
 </Project>
