@@ -2,7 +2,6 @@ using ImageCompressor.Authorization.Options;
 using ImageCompressor.Authorization;
 using ImageCompressor.EntityFramework;
 using ImageCompressor.Options;
-using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,7 +22,6 @@ builder.Services.AddStackExchangeRedisCache(options =>
     {
         options.Configuration += $",password={redisSettings.Password}";
     }
-
 });
 
 var app = builder.Build();
@@ -35,6 +33,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseAuthentication();
+app.UseMiddleware<UserSessionMiddleware>();
+app.UseAuthorization();
 app.UseStaticFiles();
 app.MapControllers();
 app.Run();
