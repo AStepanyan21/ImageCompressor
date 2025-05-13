@@ -14,7 +14,7 @@ services:
   
   redis:
     image: "redis:latest"
-    command: redis-server --requirepass some_pass
+    command: redis-server --requirepass toor
     ports:
       - "6379:6379"
     volumes:

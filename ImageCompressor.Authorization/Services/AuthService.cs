@@ -5,6 +5,7 @@ using ImageCompressor.Authorization.Data;
 using ImageCompressor.EntityFramework.DAO;
 using ImageCompressor.EntityFramework.Models;
 using ImageCompressor.EntityFramework.Repositories;
+using ImageCompressor.Exceptions;
 using ImageCompressor.Models.Request;
 using ImageCompressor.Models.Response;
 
@@ -12,9 +13,9 @@ namespace ImageCompressor.Authorization.Services;
 
 public interface IAuthService
 {
-    Task Logout(string? sessionId);
-    Task<UserLoginResponseData> Login(UserLoginRequestData requestData);
-    Task<UserLoginResponseData> Register(UserRegisterRequestData requestData);
+    Task Logout(string? sessionId, CancellationToken ct = default);
+    Task<UserLoginResponseData> Login(UserLoginRequestData requestData, CancellationToken ct = default);
+    Task<UserLoginResponseData> Register(UserRegisterRequestData requestData, CancellationToken ct = default);
 }
 
 public class AuthService(
@@ -22,20 +23,20 @@ public class AuthService(
     IUserRepository userRepository,
     IJwtTokenService jwtTokenService) : IAuthService
 {
-    public async Task Logout(string? sessionId)
+    public async Task Logout(string? sessionId, CancellationToken ct = default)
     {
         if (sessionId is not null)
         {
-            await cacheService.RemoveUserSessionAsync(sessionId);
+            await cacheService.RemoveUserSessionAsync(sessionId, ct);
         }
     }
 
-    public async Task<UserLoginResponseData> Login(UserLoginRequestData requestData)
+    public async Task<UserLoginResponseData> Login(UserLoginRequestData requestData, CancellationToken ct = default)
     {
-        var user = await userRepository.GetUserByUsername(requestData.Username);
+        var user = await userRepository.GetUserByUsername(requestData.Username, ct);
         if (VerifyPassword(requestData.Password, user))
         {
-            var claims = await GetUserClaimsIdentity(user);
+            var claims = await GetUserClaimsIdentity(user, ct);
             var jwt = jwtTokenService.CreateJwt(claims.Claims);
             return new UserLoginResponseData()
             {
@@ -44,22 +45,23 @@ public class AuthService(
             };
         }
 
-        throw new Exception("Login or password is incorrect");
+        throw new BaseExceptions("Login or password is incorrect");
     }
 
-    public async Task<UserLoginResponseData> Register(UserRegisterRequestData requestData)
+    public async Task<UserLoginResponseData> Register(UserRegisterRequestData requestData,
+        CancellationToken ct = default)
     {
         if (requestData.Password != requestData.ConfirmPassword)
         {
-            throw new Exception("Passwords not equal");
+            throw new BaseExceptions("Passwords not equal");
         }
 
         var user = await userRepository.CreateUser(new CreateUserData()
         {
             Username = requestData.Username,
             HashedPassword = HashPassword(requestData.Password)
-        });
-        var claims = await GetUserClaimsIdentity(user);
+        }, ct);
+        var claims = await GetUserClaimsIdentity(user, ct);
         var jwt = jwtTokenService.CreateJwt(claims.Claims);
         return new UserLoginResponseData()
         {
@@ -68,15 +70,15 @@ public class AuthService(
         };
     }
 
-    private async Task SetUserDataInCache(User user, string sessionId)
+    private async Task SetUserDataInCache(User user, string sessionId, CancellationToken ct = default)
     {
-        await cacheService.SetUserSessionAsync(sessionId, new UserSessionData { Username = user.Username });
+        await cacheService.SetUserSessionAsync(sessionId, new UserSessionData { Username = user.Username }, ct);
     }
 
-    private async Task<ClaimsIdentity> GetUserClaimsIdentity(User user)
+    private async Task<ClaimsIdentity> GetUserClaimsIdentity(User user, CancellationToken ct = default)
     {
         string sessionId = Guid.NewGuid().ToString();
-        await SetUserDataInCache(user, sessionId);
+        await SetUserDataInCache(user, sessionId, ct);
         var claims = new List<Claim>
         {
             new Claim("SessionId", sessionId),

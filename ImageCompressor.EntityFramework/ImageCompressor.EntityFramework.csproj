@@ -16,6 +16,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\ImageCompressor.Exceptions\ImageCompressor.Exceptions.csproj" />
       <ProjectReference Include="..\ImageCompressor.Models\ImageCompressor.Models.csproj" />
     </ItemGroup>
 

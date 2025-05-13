@@ -23,9 +23,20 @@ public static class ServiceExtensions
                     ValidateLifetime = true,
                     IssuerSigningKey = authOptions!.SigningKey.GetSymmetricSecurityKey(),
                     ValidateIssuerSigningKey = true,
+                    ValidateIssuer = false,
+                    ValidateAudience = false
                 };
                 options.Events = new JwtBearerEvents
                 {
+                    OnMessageReceived = context =>
+                    {
+                        if (context.Request.Cookies.TryGetValue(authOptions!.CookieKeyName, out var token))
+                        {
+                            context.Token = token;
+                        }
+
+                        return Task.CompletedTask;
+                    },
                     OnChallenge = context =>
                     {
                         context.HandleResponse();

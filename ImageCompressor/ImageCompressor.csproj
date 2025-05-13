@@ -38,7 +38,6 @@
 
 
     <ItemGroup>
-      <Folder Include="Controllers\" />
       <Folder Include="wwwroot\" />
     </ItemGroup>
 
@@ -46,7 +45,9 @@
 
     <ItemGroup>
       <ProjectReference Include="..\ImageCompressor.Authorization\ImageCompressor.Authorization.csproj" />
+      <ProjectReference Include="..\ImageCompressor.Core\ImageCompressor.Core.csproj" />
       <ProjectReference Include="..\ImageCompressor.EntityFramework\ImageCompressor.EntityFramework.csproj" />
+      <ProjectReference Include="..\ImageCompressor.Exceptions\ImageCompressor.Exceptions.csproj" />
       <ProjectReference Include="..\ImageCompressor.Models\ImageCompressor.Models.csproj" />
       <ProjectReference Include="..\ImageCompressor.Storage\ImageCompressor.Storage.csproj" />
     </ItemGroup>

@@ -1,6 +1,8 @@
 using ImageCompressor.Authorization.Options;
 using ImageCompressor.Authorization;
+using ImageCompressor.Core;
 using ImageCompressor.EntityFramework;
+using ImageCompressor.Exceptions;
 using ImageCompressor.Options;
 using ImageCompressor.Storage;
 using ImageCompressor.Storage.Options;
@@ -15,6 +17,7 @@ builder.Services.Configure<AuthOptions>(builder.Configuration.GetSection("AuthOp
 builder.Services.Configure<RedisSettings>(builder.Configuration.GetSection("Redis"));
 builder.Services.Configure<AwsOptions>(builder.Configuration.GetSection("AwsOptions"));
 
+builder.Services.AddCompressionService();
 builder.Services.AddDatabase(connection!);
 builder.Services.AddAuthentication(builder.Configuration);
 builder.Services.AddAwsStorage();
@@ -38,6 +41,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseAuthentication();
+app.UseMiddleware<ExceptionMiddleware>();
 app.UseMiddleware<UserSessionMiddleware>();
 app.UseAuthorization();
 app.UseStaticFiles();

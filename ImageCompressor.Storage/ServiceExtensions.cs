@@ -21,9 +21,9 @@ public static class ServiceExtensions
                 ForcePathStyle = true,
             };
 
-            if (!string.IsNullOrEmpty(options.SecretKey))
+            if (!string.IsNullOrEmpty(options.ServiceUrl))
             {
-                config.ServiceURL = options.SecretKey;
+                config.ServiceURL = options.ServiceUrl;
             }
 
             return new AmazonS3Client(options.AccessKey, options.SecretKey, config);
