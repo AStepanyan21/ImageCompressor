@@ -18,7 +18,7 @@ public interface IAuthService
     Task<UserLoginResponseData> Register(UserRegisterRequestData requestData, CancellationToken ct = default);
 }
 
-public class AuthService(
+internal class AuthService(
     ICacheService cacheService,
     IUserRepository userRepository,
     IJwtTokenService jwtTokenService) : IAuthService

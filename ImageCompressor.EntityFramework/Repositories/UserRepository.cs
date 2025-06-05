@@ -13,7 +13,7 @@ public interface IUserRepository
     Task<User> GetUserByUsername(string username, CancellationToken ct = default);
 }
 
-public class UserRepository(
+internal class UserRepository(
     ApplicationContext context,
     ILogger<UserRepository> logger) : IUserRepository
 {

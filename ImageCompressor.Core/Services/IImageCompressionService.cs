@@ -8,7 +8,7 @@ public interface IImageCompressionService
     Task<byte[]> CompressAsync(Stream inputStream, int quality = 75);
 }
 
-public class ImageCompressionService: IImageCompressionService
+internal class ImageCompressionService: IImageCompressionService
 {
     public async Task<byte[]> CompressAsync(Stream inputStream, int quality = 75)
     {

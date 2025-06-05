@@ -9,10 +9,8 @@ public interface ICompressedImageRepository
     Task<CompressedImage> GetCompressedImage(uint id, CancellationToken ct = default);
 }
 
-public class CompressedImageRepository(ApplicationContext context) : ICompressedImageRepository
+internal class CompressedImageRepository(ApplicationContext context) : ICompressedImageRepository
 {
-
-
     public async Task<CompressedImage> CreateCompressedImage(CompressedImageData data, CancellationToken ct = default)
     {
         CompressedImage image = new CompressedImage()
