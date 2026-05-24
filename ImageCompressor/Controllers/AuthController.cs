@@ -29,10 +29,7 @@ public class AuthController(IAuthService authService, IOptions<AuthOptions> opti
             Expires = DateTimeOffset.UtcNow.AddMinutes(_authOptions.Lifetime)
         });
 
-        return Ok(new
-        {
-            userData.Username
-        });
+        return Ok(userData);
     }
 
 
@@ -49,10 +46,7 @@ public class AuthController(IAuthService authService, IOptions<AuthOptions> opti
             Expires = DateTimeOffset.UtcNow.AddMinutes(_authOptions.Lifetime)
         });
 
-        return Ok(new
-        {
-            userData.Username
-        });
+        return Ok(userData);
     }
 
     [HttpPost("logout")]

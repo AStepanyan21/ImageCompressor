@@ -1,7 +1,6 @@
-version: '3'
 services:
   imageCompressorDb:
-    image: postgres:latest
+    image: postgres:17
     container_name: image_compressor
     environment:
       POSTGRES_DB: image_compressor_db
@@ -13,7 +12,7 @@ services:
       - image_compressor_data:/var/lib/postgresql/data
   
   redis:
-    image: "redis:latest"
+    image: redis:latest
     command: redis-server --requirepass toor
     ports:
       - "6379:6379"
@@ -27,11 +26,22 @@ services:
       - "9000:9000" 
       - "9001:9001"
     environment:
-      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
-      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
     command: server /data --console-address ":9001"
     volumes:
       - minio_data:/data
+
+  minio-init:
+    image: minio/mc
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      until mc alias set local http://minio:9000 minioadmin minioadmin; do sleep 1; done;
+      mc mb --ignore-existing local/mybucket;
+      mc anonymous set download local/mybucket;
+      "
   
 volumes:
   image_compressor_data:

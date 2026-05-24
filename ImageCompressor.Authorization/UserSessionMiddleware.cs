@@ -23,6 +23,7 @@ public class UserSessionMiddleware(RequestDelegate next)
                     if (context.User.Identity is ClaimsIdentity identity)
                     {
                         identity.AddClaims([
+                            new Claim(ClaimTypes.NameIdentifier, session.UserId.ToString()),
                             new Claim(ClaimTypes.Name, session.Username),
                             new Claim("SessionId", sessionId),
                         ]);

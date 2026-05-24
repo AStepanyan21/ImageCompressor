@@ -6,12 +6,39 @@ using ImageCompressor.Exceptions;
 using ImageCompressor.Options;
 using ImageCompressor.Storage;
 using ImageCompressor.Storage.Options;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddMvc();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Enter JWT token"
+    });
+
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            []
+        }
+    });
+});
 string? connection = builder.Configuration.GetConnectionString("ImageCompressorDb");
 builder.Services.Configure<AuthOptions>(builder.Configuration.GetSection("AuthOptions"));
 builder.Services.Configure<RedisSettings>(builder.Configuration.GetSection("Redis"));

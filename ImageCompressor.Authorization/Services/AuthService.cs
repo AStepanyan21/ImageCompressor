@@ -72,7 +72,11 @@ internal class AuthService(
 
     private async Task SetUserDataInCache(User user, string sessionId, CancellationToken ct = default)
     {
-        await cacheService.SetUserSessionAsync(sessionId, new UserSessionData { Username = user.Username }, ct);
+        await cacheService.SetUserSessionAsync(sessionId, new UserSessionData
+        {
+            UserId = user.UserId,
+            Username = user.Username
+        }, ct);
     }
 
     private async Task<ClaimsIdentity> GetUserClaimsIdentity(User user, CancellationToken ct = default)

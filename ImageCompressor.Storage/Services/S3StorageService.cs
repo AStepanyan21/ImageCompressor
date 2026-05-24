@@ -7,7 +7,7 @@ using Microsoft.Extensions.Options;
 
 namespace ImageCompressor.Storage.Services;
 
-public class S3StorageService(
+internal class S3StorageService(
     IAmazonS3 s3Client,
     IOptions<AwsOptions> options) : IStorageService
 {
@@ -49,7 +49,6 @@ public class S3StorageService(
         var fileTransferUtility = new TransferUtility(s3Client);
         await fileTransferUtility.UploadAsync(uploadRequest);
 
-        // Ссылка
         return $"{_options.ServiceUrl.TrimEnd('/')}/{_options.BucketName}/{Uri.EscapeDataString(uniqueFileName)}";
     }
 }
