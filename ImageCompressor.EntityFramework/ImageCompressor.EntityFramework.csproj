@@ -16,9 +16,13 @@
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0"/>
     </ItemGroup>
 
-    <ItemGroup>
+<ItemGroup>
         <ProjectReference Include="..\ImageCompressor.Exceptions\ImageCompressor.Exceptions.csproj"/>
         <ProjectReference Include="..\ImageCompressor.Models\ImageCompressor.Models.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <InternalsVisibleTo Include="ImageCompressor.Tests" />
     </ItemGroup>
 
 </Project>

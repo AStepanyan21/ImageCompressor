@@ -10,9 +10,12 @@
         <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="9.0.1" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     </ItemGroup>
-    <ItemGroup>
+<ItemGroup>
       <ProjectReference Include="..\ImageCompressor.EntityFramework\ImageCompressor.EntityFramework.csproj" />
       <ProjectReference Include="..\ImageCompressor.Exceptions\ImageCompressor.Exceptions.csproj" />
       <ProjectReference Include="..\ImageCompressor.Models\ImageCompressor.Models.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+      <InternalsVisibleTo Include="ImageCompressor.Tests" />
     </ItemGroup>
 </Project>
