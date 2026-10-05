@@ -72,5 +72,16 @@ app.UseMiddleware<ExceptionMiddleware>();
 app.UseMiddleware<UserSessionMiddleware>();
 app.UseAuthorization();
 app.UseStaticFiles();
+
+// SPA routing: for any request that doesn't match a file or API endpoint, return index.html
+app.MapWhen(context => !context.Request.Path.StartsWithSegments("/api") && !context.Request.Path.StartsWithSegments("/swagger"), appBuilder =>
+{
+    appBuilder.Run(async context =>
+    {
+        context.Response.StatusCode = 200;
+        await context.Response.SendFileAsync("wwwroot/index.html");
+    });
+});
+
 app.MapControllers();
 app.Run();
