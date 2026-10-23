@@ -15,5 +15,17 @@ export default defineConfig({
         changeOrigin: true,
       }
     }
+  },
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: './src/test/setup.ts',
+    include: ['src/**/*.{test,spec}.{ts,tsx}']
+  },
+  browser: {
+    enabled: true,
+    name: 'chromium',
+    headless: true,
+    providers: ['playwright']
   }
 })

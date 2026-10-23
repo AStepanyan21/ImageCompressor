@@ -1,4 +1,4 @@
-const API_BASE_URL = '/api/auth';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5114';
 
 interface RegisterRequest {
   username: string;
@@ -12,7 +12,7 @@ interface LoginRequest {
 
 export const AuthService = {
   async register(username: string, password: string): Promise<void> {
-    const response = await fetch(`${API_BASE_URL}/register`, {
+    const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -27,7 +27,7 @@ export const AuthService = {
   },
 
   async login(username: string, password: string): Promise<void> {
-    const response = await fetch(`${API_BASE_URL}/login`, {
+    const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -42,12 +42,36 @@ export const AuthService = {
   },
 
   async logout(): Promise<void> {
-    const response = await fetch(`${API_BASE_URL}/logout`, {
+    const response = await fetch(`${API_BASE_URL}/api/auth/logout`, {
       method: 'POST',
     });
 
     if (!response.ok) {
       throw new Error('Logout failed');
     }
+  },
+};
+
+export interface UploadResponse {
+  success: boolean;
+  message?: string;
+}
+
+export const UploadService = {
+  async uploadImage(file: File): Promise<UploadResponse> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await fetch(`${API_BASE_URL}/api/image/upload`, {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Upload failed');
+    }
+
+    return await response.json();
   },
 };

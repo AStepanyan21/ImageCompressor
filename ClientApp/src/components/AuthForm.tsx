@@ -89,6 +89,9 @@ export function AuthForm({ type, onSuccess }: AuthFormProps) {
             </>
           )}
         </p>
+        <p className="auth-footer">
+          After login, you'll be redirected to upload page
+        </p>
       </div>
     </div>
   );
