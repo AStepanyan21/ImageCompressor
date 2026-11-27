@@ -25,7 +25,6 @@ public class UserSessionMiddleware(RequestDelegate next)
                         identity.AddClaims([
                             new Claim(ClaimTypes.NameIdentifier, session.UserId.ToString()),
                             new Claim(ClaimTypes.Name, session.Username),
-                            new Claim("SessionId", sessionId),
                         ]);
                     }
                 }

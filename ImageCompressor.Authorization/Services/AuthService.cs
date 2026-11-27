@@ -33,32 +33,48 @@ internal class AuthService(
 
     public async Task<UserLoginResponseData> Login(UserLoginRequestData requestData, CancellationToken ct = default)
     {
-        var user = await userRepository.GetUserByUsername(requestData.Username, ct);
-        if (VerifyPassword(requestData.Password, user))
+        var username = requestData.Username.Trim();
+
+        User user;
+        try
         {
-            var claims = await GetUserClaimsIdentity(user, ct);
-            var jwt = jwtTokenService.CreateJwt(claims.Claims);
-            return new UserLoginResponseData()
-            {
-                Token = jwt,
-                Username = requestData.Username
-            };
+            user = await userRepository.GetUserByUsername(username, ct);
+        }
+        catch (BaseExceptions ex) when (ex.StatusCode == 404)
+        {
+            // Same answer for unknown user and wrong password, so usernames cannot be enumerated.
+            throw InvalidCredentials();
         }
 
-        throw new BaseExceptions("Login or password is incorrect");
+        if (!VerifyPassword(requestData.Password, user))
+            throw InvalidCredentials();
+
+        var claims = await GetUserClaimsIdentity(user, ct);
+        var jwt = jwtTokenService.CreateJwt(claims.Claims);
+        return new UserLoginResponseData()
+        {
+            Token = jwt,
+            Username = user.Username
+        };
     }
 
     public async Task<UserLoginResponseData> Register(UserRegisterRequestData requestData,
         CancellationToken ct = default)
     {
+        var username = requestData.Username.Trim();
+        if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(requestData.Password))
+        {
+            throw new BaseExceptions("Username and password are required");
+        }
+
         if (requestData.Password != requestData.ConfirmPassword)
         {
-            throw new BaseExceptions("Passwords not equal");
+            throw new BaseExceptions("Passwords do not match");
         }
 
         var user = await userRepository.CreateUser(new CreateUserData()
         {
-            Username = requestData.Username,
+            Username = username,
             HashedPassword = HashPassword(requestData.Password)
         }, ct);
         var claims = await GetUserClaimsIdentity(user, ct);
@@ -66,9 +82,11 @@ internal class AuthService(
         return new UserLoginResponseData()
         {
             Token = jwt,
-            Username = requestData.Username
+            Username = user.Username
         };
     }
+
+    private static BaseExceptions InvalidCredentials() => new("Invalid username or password", 401);
 
     private async Task SetUserDataInCache(User user, string sessionId, CancellationToken ct = default)
     {

@@ -30,10 +30,11 @@ internal class UserRepository(
             await context.SaveChangesAsync(ct);
             return user;
         }
-        catch (Exception e)
+        catch (DbUpdateException e)
         {
-            logger.LogInformation(e.Message);
-            throw new BaseExceptions("User is exist");
+            // Unique index on Username is the only expected constraint violation here.
+            logger.LogInformation(e, "Failed to create user {Username}", createUserData.Username);
+            throw new BaseExceptions("Username is already taken", 409);
         }
     }
 

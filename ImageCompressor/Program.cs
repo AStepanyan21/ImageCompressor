@@ -6,6 +6,7 @@ using ImageCompressor.Exceptions;
 using ImageCompressor.Options;
 using ImageCompressor.Storage;
 using ImageCompressor.Storage.Options;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,6 +22,19 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddMvc();
+// Return validation errors in the same { message } shape as ExceptionMiddleware, so the client has one error format.
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.InvalidModelStateResponseFactory = context =>
+    {
+        var message = context.ModelState.Values
+            .SelectMany(entry => entry.Errors)
+            .Select(error => error.ErrorMessage)
+            .FirstOrDefault(error => !string.IsNullOrWhiteSpace(error)) ?? "Invalid request";
+
+        return new BadRequestObjectResult(new { message });
+    };
+});
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {

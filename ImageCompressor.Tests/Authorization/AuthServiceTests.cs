@@ -136,6 +136,43 @@ public class AuthServiceTests
     }
 
     [Fact]
+    public async Task Login_UnknownUser_ThrowsSameErrorAsWrongPassword()
+    {
+        // Arrange
+        var request = new UserLoginRequestData
+        {
+            Username = "missing",
+            Password = "password123"
+        };
+
+        _userRepositoryMock
+            .Setup(r => r.GetUserByUsername("missing", It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new BaseExceptions("User not found", 404));
+
+        // Act & Assert
+        var ex = await Assert.ThrowsAsync<BaseExceptions>(() => _authService.Login(request));
+        Assert.Equal(401, ex.StatusCode);
+        Assert.Equal("Invalid username or password", ex.Message);
+    }
+
+    [Fact]
+    public async Task Register_EmptyUsername_ThrowsBadRequest()
+    {
+        // Arrange
+        var request = new UserRegisterRequestData
+        {
+            Username = "   ",
+            Password = "password123",
+            ConfirmPassword = "password123"
+        };
+
+        // Act & Assert
+        var ex = await Assert.ThrowsAsync<BaseExceptions>(() => _authService.Register(request));
+        Assert.Equal(400, ex.StatusCode);
+        _userRepositoryMock.Verify(r => r.CreateUser(It.IsAny<CreateUserData>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
     public async Task Logout_WithValidSessionId_RemovesSession()
     {
         // Arrange

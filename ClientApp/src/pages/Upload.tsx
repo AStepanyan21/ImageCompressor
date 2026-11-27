@@ -1,107 +1,59 @@
-import { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { UploadService } from '../services/api';
+import { useCallback, useEffect, useState } from 'react'
+import { useAuth } from '../auth/AuthContext'
+import { CompressionResult } from '../components/CompressionResult'
+import { ImageHistory, type HistoryStatus } from '../components/ImageHistory'
+import { UploadForm } from '../components/UploadForm'
+import { ImageService, type CompressedImage } from '../services/api'
+import { isUnauthorized } from '../utils/errors'
+
+interface LastResult {
+  image: CompressedImage
+  originalFile: File
+}
 
 export function Upload() {
-  const navigate = useNavigate();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [file, setFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const { handleUnauthorized } = useAuth()
+  const [history, setHistory] = useState<CompressedImage[]>([])
+  const [historyStatus, setHistoryStatus] = useState<HistoryStatus>('loading')
+  const [lastResult, setLastResult] = useState<LastResult | null>(null)
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
-      if (!selectedFile.type.startsWith('image/')) {
-        setError('Please select a valid image file');
-        return;
-      }
-      
-      setFile(selectedFile);
-      setPreview(URL.createObjectURL(selectedFile));
-      setError(null);
-    }
-  };
-
-  const handleSelectClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-
-    if (!file) {
-      setError('Please select a file');
-      return;
-    }
-
-    setIsLoading(true);
-
+  // State is only updated after the request settles (initial status is already 'loading').
+  const fetchHistory = useCallback(async () => {
     try {
-      await UploadService.uploadImage(file);
-      navigate('/result');
-    } catch (err: any) {
-      setError(err.message || 'Upload failed');
-    } finally {
-      setIsLoading(false);
+      setHistory(await ImageService.list())
+      setHistoryStatus('ready')
+    } catch (err) {
+      if (isUnauthorized(err)) {
+        handleUnauthorized()
+        return
+      }
+      setHistoryStatus('error')
     }
-  };
+  }, [handleUnauthorized])
 
-  const handleClear = () => {
-    setFile(null);
-    setPreview(null);
-    setError(null);
-  };
+  useEffect(() => {
+    // False positive: fetchHistory only sets state after the request resolves.
+    // oxlint-disable-next-line react/set-state-in-effect
+    fetchHistory()
+  }, [fetchHistory])
+
+  const retryHistory = () => {
+    setHistoryStatus('loading')
+    fetchHistory()
+  }
+
+  const handleCompressed = (image: CompressedImage, originalFile: File) => {
+    setLastResult({ image, originalFile })
+    setHistory((prev) => [image, ...prev.filter((item) => item.id !== image.id)])
+  }
 
   return (
-    <div className="upload-container">
-      <div className="upload-card">
-        <h2>Upload Image</h2>
-        {error && <div className="error-message">{error}</div>}
-
-        <form onSubmit={handleSubmit} className="upload-form">
-          <div className="file-input-wrapper">
-            <input
-              type="file"
-              id="fileInput"
-              ref={fileInputRef}
-              accept="image/*"
-              onChange={handleFileChange}
-              disabled={isLoading}
-              className="hidden-file-input"
-            />
-            <button type="button" onClick={handleSelectClick} className="btn-primary">
-              {file ? 'Change File' : 'Select Image'}
-            </button>
-          </div>
-
-          {preview && (
-            <div className="preview-container">
-              <img src={preview} alt="Preview" className="preview-image" />
-              <div className="preview-info">
-                <span>{file?.name}</span>
-                <button type="button" onClick={handleClear} className="btn-link">
-                  Remove
-                </button>
-              </div>
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={!file || isLoading}
-            className="btn-primary"
-          >
-            {isLoading ? 'Uploading...' : 'Upload & Wait'}
-          </button>
-        </form>
-
-        <p className="upload-hint">
-          Supported formats: JPG, PNG, GIF, WEBP
-        </p>
+    <div className="upload-page">
+      <div className="upload-grid">
+        <UploadForm onCompressed={handleCompressed} />
+        {lastResult && <CompressionResult image={lastResult.image} originalFile={lastResult.originalFile} />}
       </div>
+      <ImageHistory images={history} status={historyStatus} onRetry={retryHistory} />
     </div>
-  );
+  )
 }
