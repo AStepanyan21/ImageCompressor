@@ -1,8 +1,8 @@
-﻿using Amazon.S3;
-using Amazon.S3.Transfer;
+﻿using System.Net;
+using Amazon.S3;
+using Amazon.S3.Model;
 using ImageCompressor.Storage.Interfaces;
 using ImageCompressor.Storage.Options;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 
 namespace ImageCompressor.Storage.Services;
@@ -13,42 +13,29 @@ internal class S3StorageService(
 {
     private readonly AwsOptions _options = options.Value;
 
-    public async Task<string> UploadFileAsync(IFormFile? file, CancellationToken ct = default)
+    public async Task UploadAsync(string key, byte[] data, string contentType, CancellationToken ct = default)
     {
-        var fileTransferUtility = new TransferUtility(s3Client);
+        using var stream = new MemoryStream(data);
 
-        using var newMemoryStream = new MemoryStream();
-        await file!.CopyToAsync(newMemoryStream, ct);
-
-        var uploadRequest = new TransferUtilityUploadRequest
+        await s3Client.PutObjectAsync(new PutObjectRequest
         {
-            InputStream = newMemoryStream,
-            Key = file.FileName,
             BucketName = _options.BucketName,
-            ContentType = file.ContentType
-        };
-
-        await fileTransferUtility.UploadAsync(uploadRequest, ct);
-
-        var fileUrl = $"{_options.ServiceUrl}/{_options.BucketName}/{file.FileName}";
-        return fileUrl;
+            Key = key,
+            InputStream = stream,
+            ContentType = contentType
+        }, ct);
     }
 
-    public async Task<object> UploadAsync(byte[] compressed, string uniqueFileName, string imageJpeg)
+    public async Task<StoredObject?> DownloadAsync(string key, CancellationToken ct = default)
     {
-        using var ms = new MemoryStream(compressed);
-
-        var uploadRequest = new TransferUtilityUploadRequest
+        try
         {
-            InputStream = ms,
-            Key = uniqueFileName,
-            BucketName = _options.BucketName,
-            ContentType = imageJpeg
-        };
-
-        var fileTransferUtility = new TransferUtility(s3Client);
-        await fileTransferUtility.UploadAsync(uploadRequest);
-
-        return $"{_options.ServiceUrl.TrimEnd('/')}/{_options.BucketName}/{Uri.EscapeDataString(uniqueFileName)}";
+            var response = await s3Client.GetObjectAsync(_options.BucketName, key, ct);
+            return new StoredObject(response.ResponseStream, response.Headers.ContentType, response.ContentLength);
+        }
+        catch (AmazonS3Exception ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+        {
+            return null;
+        }
     }
 }

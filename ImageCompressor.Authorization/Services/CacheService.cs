@@ -21,7 +21,7 @@ public class CacheService(IDistributedCache cache, IOptions<AuthOptions> options
         var jsonData = JsonSerializer.Serialize(userData);
         var cacheOptions = new DistributedCacheEntryOptions
         {
-            AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(_authOptions.Lifetime)
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(_authOptions.Lifetime)
         };
 
         await cache.SetStringAsync($"UserSession:{sessionId}", jsonData, cacheOptions, ct);

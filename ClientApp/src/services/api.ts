@@ -1,77 +1,101 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5114';
+/** Error returned by the API with a non-2xx status. */
+export class ApiError extends Error {
+  readonly status: number
 
-interface RegisterRequest {
-  username: string;
-  password: string;
+  constructor(message: string, status: number) {
+    super(message)
+    this.name = 'ApiError'
+    this.status = status
+  }
 }
 
-interface LoginRequest {
-  username: string;
-  password: string;
+/** The request never reached the server (offline, DNS, proxy down, ...). */
+export class NetworkError extends Error {
+  constructor() {
+    super('Network error')
+    this.name = 'NetworkError'
+  }
+}
+
+export interface CurrentUser {
+  username: string
+}
+
+export interface CompressedImage {
+  id: number
+  originalFileName: string
+  contentType: string
+  originalSize: number
+  compressedSize: number
+  quality: number
+  createdAt: string
+  /** Relative URL to view the compressed image. */
+  url: string
+  /** Relative URL that downloads the compressed image as a file. */
+  downloadUrl: string
+}
+
+// Always same-origin: Vite proxies /api in dev, ASP.NET Core serves the SPA in production.
+// This keeps the HttpOnly, SameSite=Strict auth cookie working without CORS.
+async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
+  let response: Response
+  try {
+    response = await fetch(path, { credentials: 'same-origin', ...init })
+  } catch {
+    throw new NetworkError()
+  }
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => null)
+    const message = (data && typeof data.message === 'string' && data.message) || response.statusText || 'Request failed'
+    throw new ApiError(message, response.status)
+  }
+
+  const text = await response.text()
+  return (text ? JSON.parse(text) : undefined) as T
+}
+
+function postJson<T>(path: string, body: unknown): Promise<T> {
+  return request<T>(path, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  })
 }
 
 export const AuthService = {
-  async register(username: string, password: string): Promise<void> {
-    const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ username, password } as RegisterRequest),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || 'Registration failed');
-    }
+  register(username: string, password: string, confirmPassword: string): Promise<CurrentUser> {
+    return postJson('/api/auth/register', { username, password, confirmPassword })
   },
 
-  async login(username: string, password: string): Promise<void> {
-    const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ username, password } as LoginRequest),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || 'Login failed');
-    }
+  login(username: string, password: string): Promise<CurrentUser> {
+    return postJson('/api/auth/login', { username, password })
   },
 
   async logout(): Promise<void> {
-    const response = await fetch(`${API_BASE_URL}/api/auth/logout`, {
-      method: 'POST',
-    });
+    await request('/api/auth/logout', { method: 'POST' })
+  },
 
-    if (!response.ok) {
-      throw new Error('Logout failed');
+  /** Returns the current user, or null when there is no valid session. */
+  async me(): Promise<CurrentUser | null> {
+    try {
+      return await request<CurrentUser>('/api/auth/me')
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 401) return null
+      throw err
     }
   },
-};
-
-export interface UploadResponse {
-  success: boolean;
-  message?: string;
 }
 
-export const UploadService = {
-  async uploadImage(file: File): Promise<UploadResponse> {
-    const formData = new FormData();
-    formData.append('file', file);
-
-    const response = await fetch(`${API_BASE_URL}/api/image/upload`, {
-      method: 'POST',
-      body: formData,
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || 'Upload failed');
-    }
-
-    return await response.json();
+export const ImageService = {
+  upload(file: File, quality: number): Promise<CompressedImage> {
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('quality', String(quality))
+    return request('/api/image/upload', { method: 'POST', body: formData })
   },
-};
+
+  list(): Promise<CompressedImage[]> {
+    return request('/api/image')
+  },
+}

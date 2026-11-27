@@ -1,41 +1,54 @@
-import { ReactNode } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { AuthService } from '../services/api';
+import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { useAuth } from '../auth/AuthContext'
+import { useI18n } from '../i18n/I18nContext'
+import { LanguageSwitcher } from './LanguageSwitcher'
 
-interface LayoutProps {
-  children: ReactNode;
-}
-
-export function Layout({ children }: LayoutProps) {
-  const navigate = useNavigate();
+export function Layout() {
+  const { user, status, logout } = useAuth()
+  const { t } = useI18n()
+  const navigate = useNavigate()
 
   const handleLogout = async () => {
     try {
-      await AuthService.logout();
-      navigate('/login');
-    } catch (err) {
-      console.error('Logout failed:', err);
+      await logout()
+    } finally {
+      navigate('/login', { replace: true })
     }
-  };
+  }
 
   return (
     <div className="layout">
       <header className="layout-header">
         <div className="header-content">
           <Link to="/" className="logo">
-            ImageCompressor
+            <span className="logo-mark" aria-hidden="true">◧</span>
+            <span className="logo-text">{t('app.name')}</span>
           </Link>
+
           <nav className="header-nav">
-            <Link to="/upload">Upload</Link>
-            <button onClick={handleLogout} className="btn-secondary">
-              Logout
-            </button>
+            {status === 'authenticated' && user && (
+              <>
+                <NavLink to="/upload" className="nav-compress">{t('nav.compress')}</NavLink>
+                <span className="header-user" title={user.username}>{user.username}</span>
+                <button type="button" onClick={handleLogout} className="btn-secondary btn-small">
+                  {t('nav.logout')}
+                </button>
+              </>
+            )}
+            {status === 'anonymous' && (
+              <>
+                <NavLink to="/login">{t('nav.login')}</NavLink>
+                <NavLink to="/register">{t('nav.register')}</NavLink>
+              </>
+            )}
+            <LanguageSwitcher />
           </nav>
         </div>
       </header>
+
       <main className="layout-main">
-        {children}
+        <Outlet />
       </main>
     </div>
-  );
+  )
 }
